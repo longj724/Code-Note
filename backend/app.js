@@ -3,7 +3,9 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const mongoSessionStore = require('connect-mongo');
+const bodyParser = require('body-parser');
 const auth = require('./github');
+const noteApi = require('./noteRoutes');
 
 require('dotenv').config();
 
@@ -41,10 +43,12 @@ const sess = {
 };
 
 const server = express();
-server.use(cors({ credentials: true }))
+server.use(cors({ credentials: true }));
 
 server.use(session(sess));
+server.use(bodyParser.json());
 auth({ server, ROOT_URL });
+noteApi(server);
 
 server.get('/testing', (req, res) => {
     console.log('backend being hit');

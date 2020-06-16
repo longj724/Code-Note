@@ -1,4 +1,4 @@
-const mogoose = require('mongoose');
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 mongoose.set('useFindAndModify', false);
@@ -26,7 +26,7 @@ const mongoSchema = new Schema({
 });
 
 class NoteClass {
-    static async createNote(githubId, folder, content) {
+    static async createNote({githubId, folder, content}) {
         const user = await this.findOne({ githubId });
 
         if (user) {
@@ -34,9 +34,12 @@ class NoteClass {
                 createdAt: new Date(),
                 content: content,
                 folder: folder,
-                userId: user._id
+                userId: user._id,
             });
+
+            return newNote;
         }
+        return null;
     }
 }
 
