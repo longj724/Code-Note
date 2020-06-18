@@ -50,9 +50,4 @@ server.use(bodyParser.json());
 auth({ server, ROOT_URL });
 noteApi(server);
 
-server.get('/testing', (req, res) => {
-    console.log('backend being hit');
-    res.send('Hello World');
-});
-
 server.listen(port, () => console.log(`Listening on port ${port}`));

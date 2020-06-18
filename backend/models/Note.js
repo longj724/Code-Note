@@ -26,11 +26,10 @@ const mongoSchema = new Schema({
 });
 
 class NoteClass {
-    static async createNote({githubId, folder, content}) {
-        const user = await this.findOne({ githubId });
+    static async createNote({user, folder, content}) {
 
         if (user) {
-            const newNote = await this.createNote({
+            const newNote = await this.create({
                 createdAt: new Date(),
                 content: content,
                 folder: folder,
@@ -43,6 +42,8 @@ class NoteClass {
     }
 }
 
+mongoSchema.loadClass(NoteClass)
+
 const Note = mongoose.model('Note', mongoSchema);
 
-module.export = Note;
+module.exports = Note;

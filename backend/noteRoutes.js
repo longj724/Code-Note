@@ -1,5 +1,6 @@
 const express = require('express');
 const Note = require('./models/Note');
+const User = require('./models/User');
 const router = express.Router();
 
 const noteApi = (server) => {
@@ -12,26 +13,40 @@ const noteApi = (server) => {
         }
     });
 
-    router.get('/addNote', async (req, res) => {
+    router.post('/addNote', async (req, res) => {
         try {
-            Note.createNote({githubId: req.user.githubId, folder: 'fadl', content: initialValue})
-        } catch {
+            const user = await User.findOne({ slug: req.user.slug });
+            const note = await Note.createNote({
+                user: user,
+                folder: req.body.folder,
+                content: JSON.stringify(initialValue),
+            });
+            res.json(note);
+        } catch (err) {
             res.json({ error: err.message || err.toString() });
+        }
+    });
+
+    router.post('/notesInFolder', async (req, res) => {
+        try {
+            const notes = await Note.find({ folder: req.body.folder})
+            res.json(notes)
+        } catch (err) {
+            res.json({ error: err.message || err.toString() })
         }
     })
 
-    server.use('/', router)
+    server.use('/', router);
 };
 
 const initialValue = [
     {
         children: [
             {
-                text:
-                    'Starter Text',
+                text: 'Starter Text',
             },
         ],
     },
 ];
 
-module.exports = noteApi
+module.exports = noteApi;
