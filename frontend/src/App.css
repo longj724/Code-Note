@@ -1,0 +1,13 @@
+.holder {
+    width: 50vw;
+    height: 100vh;
+}
+
+body {
+    background-color: #eeeeee;
+}
+
+p {
+    margin-left: 10px;
+    margin-right: 10px;
+}
