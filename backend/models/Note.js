@@ -10,6 +10,10 @@ const mongoSchema = new Schema({
         type: Schema.Types.ObjectId,
         required: true,
     },
+    title: {
+        type: String,
+        default: 'undefined'
+    },
     content: {
         type: String,
         required: true,
