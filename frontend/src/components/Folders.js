@@ -8,6 +8,8 @@ import FolderIcon from '@material-ui/icons/Folder';
 import Modal from '@material-ui/core/Modal';
 import TextField from '@material-ui/core/TextField';
 import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux'
+import { notesInFolder } from '../actions/noteActions'
 
 function rand() {
     return Math.round(Math.random() * 20) - 10;
@@ -47,9 +49,12 @@ const Folders = () => {
 
     const [rendered, setRendered] = useState(false);
     const [open, setOpen] = useState(false);
+    const [modalStyle] = useState(getModalStyle);
     const [folders, setFolders] = useState([]);
     const [folderName, setfolderName] = useState('');
-    const [modalStyle] = useState(getModalStyle);
+
+    const notes = useSelector(state => state.notes)
+    const dispatch = useDispatch();
 
     const handleOpen = () => {
         setOpen(true);
@@ -79,13 +84,7 @@ const Folders = () => {
 
     const getNotes = (event) => {
         event.persist()
-        axios.post('/notesInFolder', {
-            folder: event.currentTarget.dataset.value
-        }).then((res) => {
-            return res.data
-        }).then((res) => {
-            console.log(res.data)
-        })
+        dispatch((notesInFolder(event.currentTarget.dataset.value)))
     }
 
     useEffect(() => {

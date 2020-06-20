@@ -5,10 +5,11 @@ import Login from './components/Login';
 import HomePage from './components/HomePage';
 
 import { Provider } from 'react-redux';
+import store from './store'
 
 function App() {
     return (
-        <Provider>
+        <Provider store={store}>
             <BrowserRouter>
                 <Switch>
                     <Route path="/" exact component={Login} />

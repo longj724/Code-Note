@@ -6,6 +6,7 @@ import TextEditor from './TextEditor';
 import axios from 'axios';
 
 import Folders from './Folders';
+import Notes from './Notes'
 
 const useStyles = makeStyles({
     divs: {
@@ -49,7 +50,9 @@ const HomePage = () => {
                     <Grid item xs={3} className={classes.div1}>
                         <Folders />
                     </Grid>
-                    <Grid item xs={3} className={classes.div2}></Grid>
+                    <Grid item xs={3} className={classes.div2}>
+                        <Notes />
+                    </Grid>
                     <Grid item xs={6} className={classes.div3}>
                         <TextEditor />
                     </Grid>
