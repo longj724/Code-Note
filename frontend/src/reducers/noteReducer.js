@@ -1,7 +1,8 @@
-import { CUR_FOLDER_NOTES } from '../actions/types'
+import { CUR_FOLDER_NOTES, SELECTED_NOTE } from '../actions/types';
 
 const initialState = {
-    notes: ['1'],
+    notes: [],
+    selectedNote: {},
 };
 
 export default (state = initialState, action) => {
@@ -10,6 +11,11 @@ export default (state = initialState, action) => {
             return {
                 ...state,
                 notes: action.payload,
+            };
+        case SELECTED_NOTE:
+            return {
+                ...state,
+                selectedNote: action.payload,
             };
         default:
             return state;

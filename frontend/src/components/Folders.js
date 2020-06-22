@@ -70,12 +70,6 @@ const Folders = () => {
             .post('/addNote', {
                 folder: folderName,
             })
-            .then((res) => {
-                return res.data;
-            })
-            .then((res) => {
-                console.log(res.content);
-            });
     };
 
     const handleChange = (event) => {
@@ -126,7 +120,8 @@ const Folders = () => {
                 {folders.map((folderName) => {
                     return (
                         <ListItem button onClick={getNotes} data-value={folderName}>
-                            <ListItemText primary={folderName} value={folderName}/>
+                            <ListItemText primary={folderName} value={folderName}
+                            style={{ color: '#fff'}}/>
                         </ListItem>
                     );
                 })}

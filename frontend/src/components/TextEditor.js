@@ -1,8 +1,11 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import AceEditor from 'react-ace';
 import 'brace/mode/javascript';
 import 'brace/mode/python';
 import 'brace/theme/monokai';
+import isHotkey from 'is-hotkey';
+import _ from 'lodash';
+import axios from 'axios';
 
 // Slate
 import { Editable, withReact, Slate } from 'slate-react';
@@ -21,7 +24,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import TextField from '@material-ui/core/TextField'
+import TextField from '@material-ui/core/TextField';
+
+import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
     menuButton: {
@@ -35,13 +40,23 @@ const useStyles = makeStyles((theme) => ({
 
 const TextEditor = () => {
     const classes = useStyles();
+    const selectedNote = useSelector((state) => state.notes.selectedNote);
+
     const [value, setValue] = useState(initialValue);
+
     const [language, setLanguage] = useState('javascript');
     const [open, setOpen] = useState(false);
 
     const editor = useMemo(() => withReact(createEditor()), []);
     const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
     const renderElement = useCallback((props) => <Element {...props} />, []);
+
+    useEffect(() => {
+        console.log('In useEffect')
+        if (!_.isEmpty(selectedNote)) {
+            setValue(JSON.parse(selectedNote.content));
+        }
+    }, [selectedNote]);
 
     const handleChange = (event) => {
         setLanguage(event.target.value);
@@ -58,7 +73,7 @@ const TextEditor = () => {
     const Element = (props) => {
         const { attributes, children, element } = props;
         switch (element.type) {
-            case 'video':
+            case 'code':
                 return <AceElement {...props} />;
             default:
                 return <p {...attributes}>{children}</p>;
@@ -72,9 +87,7 @@ const TextEditor = () => {
             });
         };
 
-        const onChange = (newValue) => {
-            
-        };
+        const onChange = (newValue) => {};
 
         return (
             <>
@@ -150,7 +163,7 @@ const TextEditor = () => {
                             variant="contained"
                             onClick={(event) => {
                                 event.preventDefault();
-                                toggleBlock(editor, 'video', language);
+                                toggleBlock(editor, 'code', language);
                             }}
                         >
                             Add Editor
@@ -178,6 +191,16 @@ const TextEditor = () => {
                 <Editable
                     renderElement={renderElement}
                     renderLeaf={renderLeaf}
+                    onKeyDown={(event) => {
+                        if (isHotkey('mod+s', event)) {
+                            event.preventDefault();
+                            axios
+                                .post('/updateNote', {
+                                    id: selectedNote._id,
+                                    content: JSON.stringify(value),
+                                })
+                        }
+                    }}
                     placeholder="Enter some text..."
                 />
             </Slate>
@@ -199,7 +222,7 @@ const toggleBlock = (editor, format, language) => {
     const isActive = isBlockActive(editor, format);
 
     Transforms.setNodes(editor, {
-        type: isActive ? 'default' : 'video',
+        type: isActive ? 'default' : 'code',
         language,
     });
 };
@@ -237,8 +260,7 @@ const initialValue = [
     {
         children: [
             {
-                text:
-                    'Starter Text',
+                text: 'Starter Text',
             },
         ],
     },

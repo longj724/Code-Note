@@ -29,12 +29,24 @@ const noteApi = (server) => {
 
     router.post('/notesInFolder', async (req, res) => {
         try {
-            const notes = await Note.find({ folder: req.body.folder})
-            res.json(notes)
+            const notes = await Note.find({ folder: req.body.folder });
+            res.json(notes);
         } catch (err) {
-            res.json({ error: err.message || err.toString() })
+            res.json({ error: err.message || err.toString() });
         }
-    })
+    });
+
+    router.post('/updateNote', async (req, res) => {
+        try {
+            await Note.updateOne(
+                { _id: req.body.id },
+                { content: req.body.content }
+            );
+            res.json({ success: 'success'})
+        } catch (err) {
+            res.json({ error: err.message || err.toString() });
+        }
+    });
 
     server.use('/', router);
 };

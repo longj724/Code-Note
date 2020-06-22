@@ -1,25 +1,37 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import { getSelectedNote } from '../actions/noteActions'
 
 const Notes = () => {
     const notes = useSelector((state) => state.notes.notes);
+    const dispatch = useDispatch();
 
-    console.log(notes)
+    const displayNote = (event) => {
+        event.persist()
+        dispatch((getSelectedNote(event.currentTarget.dataset.value, notes)))
+    };
 
     return (
         <div>
             <List>
-                {notes.length > 1 ? notes.map((note) => {
-                    return (
-                        <ListItem button>
-                            <ListItemText primary={note.folder} />
-                        </ListItem>
-                    );
-                }) : <p>No notes </p>}
+                {notes.length > 0 ? (
+                    notes.map((note) => {
+                        return (
+                            <ListItem button onClick={displayNote} data-value={note._id}>
+                                <ListItemText
+                                    primary={note.title}
+                                    style={{ color: '#fff' }}
+                                />
+                            </ListItem>
+                        );
+                    })
+                ) : (
+                    <p>No notes</p>
+                )}
             </List>
         </div>
     );
