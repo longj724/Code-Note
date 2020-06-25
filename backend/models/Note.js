@@ -12,7 +12,7 @@ const mongoSchema = new Schema({
     },
     title: {
         type: String,
-        default: 'undefined'
+        default: 'untitled'
     },
     content: {
         type: String,

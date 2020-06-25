@@ -13,7 +13,7 @@ const noteApi = (server) => {
         }
     });
 
-    router.post('/addNote', async (req, res) => {
+    router.post('/addFolder', async (req, res) => {
         try {
             const user = await User.findOne({ slug: req.user.slug });
             const note = await Note.createNote({
@@ -21,7 +21,6 @@ const noteApi = (server) => {
                 folder: req.body.folder,
                 content: JSON.stringify(initialValue),
             });
-            res.json(note);
         } catch (err) {
             res.json({ error: err.message || err.toString() });
         }
@@ -36,13 +35,26 @@ const noteApi = (server) => {
         }
     });
 
+    router.post('/addNote', async (req, res) => {
+        try {
+            const note = await Note.createNote({
+                user: req.user,
+                folder: req.body.folder,
+                content: JSON.stringify(initialValue),
+            });
+            res.json({ success: 'success' });
+        } catch (err) {
+            res.json({ error: err.message || err.toStrin() });
+        }
+    });
+
     router.post('/updateNote', async (req, res) => {
         try {
             await Note.updateOne(
                 { _id: req.body.id },
                 { content: req.body.content }
             );
-            res.json({ success: 'success'})
+            res.json({ success: 'success' });
         } catch (err) {
             res.json({ error: err.message || err.toString() });
         }
