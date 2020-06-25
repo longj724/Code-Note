@@ -1,4 +1,4 @@
-import { CUR_FOLDER_NOTES, SELECTED_NOTE } from './types';
+import { CUR_FOLDER_NOTES, SELECTED_NOTE, CUR_EDITOR_JSON } from './types';
 import axios from 'axios';
 
 export const notesInFolder = (folder) => (dispatch) => {
@@ -18,6 +18,10 @@ export const notesInFolder = (folder) => (dispatch) => {
 };
 
 export const getSelectedNote = (id, notes) => (dispatch) => {
-    const selectedNote = notes.find(note => note._id === id)
+    const selectedNote = notes.find((note) => note._id === id);
     dispatch({ type: SELECTED_NOTE, payload: selectedNote });
+};
+
+export const setCurEditorValue = (value) => (dispatch) => {
+    dispatch({ type: CUR_EDITOR_JSON, payload: value });
 };

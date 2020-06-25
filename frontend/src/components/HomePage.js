@@ -3,7 +3,6 @@ import { Redirect } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import TextEditor from './TextEditor';
-import axios from 'axios';
 
 import Folders from './Folders';
 import Notes from './Notes'

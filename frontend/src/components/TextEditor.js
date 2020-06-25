@@ -26,7 +26,8 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 
-import { useSelector } from 'react-redux';
+import { setCurEditorValue } from '../actions/noteActions';
+import { useSelector, useDispatch } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
     menuButton: {
@@ -40,21 +41,22 @@ const useStyles = makeStyles((theme) => ({
 
 const TextEditor = () => {
     const classes = useStyles();
+    const dispatch = useDispatch();
     const selectedNote = useSelector((state) => state.notes.selectedNote);
 
-    const [value, setValue] = useState(initialValue);
+    const noteJSON = useSelector((state) => state.notes.curEditorJSON);
 
     const [language, setLanguage] = useState('javascript');
     const [open, setOpen] = useState(false);
+    const [noteTitle, setNoteTitle] = useState('untitled');
 
     const editor = useMemo(() => withReact(createEditor()), []);
     const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
     const renderElement = useCallback((props) => <Element {...props} />, []);
 
     useEffect(() => {
-        console.log('In useEffect')
         if (!_.isEmpty(selectedNote)) {
-            setValue(JSON.parse(selectedNote.content));
+            dispatch(setCurEditorValue(JSON.parse(selectedNote.content)));
         }
     }, [selectedNote]);
 
@@ -70,6 +72,12 @@ const TextEditor = () => {
         setOpen(true);
     };
 
+    const handleTitleChange = (event) => {
+        setNoteTitle(event.target.value);
+    };
+
+    const updateTitle = (event) => {};
+
     const Element = (props) => {
         const { attributes, children, element } = props;
         switch (element.type) {
@@ -81,23 +89,35 @@ const TextEditor = () => {
     };
 
     const AceElement = ({ attributes, children, element }) => {
+        const noteJSON2 = useSelector((state) => state.notes.curEditorJSON);
+        var updatedCode = [];
+
         const onClick = () => {
             Editor.insertNode(editor, {
-                children: [{ text: '' }],
+                children: [{ text: 'Work' }],
             });
         };
 
-        const onChange = (newValue) => {};
+        const handleCodeChange = (newValue, editorId) => {
+            updatedCode = noteJSON2.map((node) => {
+                return node.editorId === editorId
+                    ? { ...node, editorValue: newValue }
+                    : { ...node };
+            });
+            setTimeout(() => {
+                dispatch((setCurEditorValue(updatedCode)))
+            }, 2000)
+        };
 
         return (
             <>
                 <div contentEditable={false} style={{ marginLeft: '10px' }}>
                     <AceEditor
-                        id="justin"
                         height="250px"
                         mode={element.language}
                         theme="monokai"
-                        onChange={onChange}
+                        value={element.editorValue}
+                        onChange={(newValue) => handleCodeChange(newValue, element.editorId)}
                     />
                 </div>
                 <p
@@ -122,8 +142,8 @@ const TextEditor = () => {
         >
             <Slate
                 editor={editor}
-                value={value}
-                onChange={(newValue) => setValue(newValue)}
+                value={noteJSON}
+                onChange={(newValue) => dispatch(setCurEditorValue(newValue))}
             >
                 <AppBar position="static">
                     <Toolbar>
@@ -186,6 +206,7 @@ const TextEditor = () => {
                             </Select>
                         </FormControl>
                         <TextField id="standard-basic" label="Title" />
+                        <Button variant="contained">Update Title</Button>
                     </Toolbar>
                 </AppBar>
                 <Editable
@@ -194,11 +215,12 @@ const TextEditor = () => {
                     onKeyDown={(event) => {
                         if (isHotkey('mod+s', event)) {
                             event.preventDefault();
-                            axios
-                                .post('/updateNote', {
-                                    id: selectedNote._id,
-                                    content: JSON.stringify(value),
-                                })
+                            axios.post('/updateNote', {
+                                id: selectedNote._id,
+                                content: JSON.stringify(noteJSON),
+                            }).then((res) => {
+                                console.log(res);
+                            });
                         }
                     }}
                     placeholder="Enter some text..."
@@ -220,10 +242,13 @@ const toggleMark = (editor, format) => {
 
 const toggleBlock = (editor, format, language) => {
     const isActive = isBlockActive(editor, format);
+    const editorId = Math.floor(Math.random() * 1000 + 1);
 
     Transforms.setNodes(editor, {
         type: isActive ? 'default' : 'code',
         language,
+        editorValue: 'starter',
+        editorId,
     });
 };
 

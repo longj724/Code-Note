@@ -27,7 +27,7 @@ function getModalStyle() {
 }
 
 const useStyles = makeStyles((theme) => ({
-    addNote: {
+    addFolder: {
         color: '#fff',
         textAlign: 'center',
         backgroundColor: 'red',
@@ -67,7 +67,7 @@ const Folders = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
         axios
-            .post('/addNote', {
+            .post('/addFolder', {
                 folder: folderName,
             })
     };
@@ -113,8 +113,8 @@ const Folders = () => {
             <List>
                 <ListItem button onClick={handleOpen}>
                     <ListItemText
-                        primary="Add Note"
-                        className={classes.addNote}
+                        primary="Add Folder"
+                        className={classes.addFolder}
                     />
                 </ListItem>
                 {folders.map((folderName) => {
