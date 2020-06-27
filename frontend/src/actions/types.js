@@ -1,3 +1,4 @@
 export const CUR_FOLDER_NOTES = 'CUR_FOLDER_NOTES'
 export const SELECTED_NOTE = 'SELECTED_NOTE'
 export const CUR_EDITOR_JSON = 'CUR_EDITOR_VALUE'
+export const SELECT_NOTE = 'SELECT_NOTE'

@@ -2,6 +2,7 @@ import {
     CUR_FOLDER_NOTES,
     SELECTED_NOTE,
     CUR_EDITOR_JSON,
+    SELECT_NOTE,
 } from '../actions/types';
 
 const initialState = {
@@ -35,6 +36,11 @@ export default (state = initialState, action) => {
                 ...state,
                 curEditorJSON: action.payload,
             };
+        case SELECT_NOTE:
+            return {
+                ...state,
+                notes: action.payload
+            }
         default:
             return state;
     }
