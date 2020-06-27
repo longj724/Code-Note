@@ -6,6 +6,7 @@ import 'brace/theme/monokai';
 import isHotkey from 'is-hotkey';
 import _ from 'lodash';
 import axios from 'axios';
+import { debounce } from '../utils/helpers';
 
 // Slate
 import { Editable, withReact, Slate } from 'slate-react';
@@ -99,15 +100,24 @@ const TextEditor = () => {
         };
 
         const handleCodeChange = (newValue, editorId) => {
+            // updatedCode = noteJSON2.map((node) => {
+            //     return node.editorId === editorId
+            //         ? { ...node, editorValue: newValue }
+            //         : { ...node };
+            // });
+            // setTimeout(() => {
+            //     dispatch((setCurEditorValue(updatedCode)))
+            // }, 2000)
+        };
+
+        var returnedFunction = debounce((newValue, editorId) => {
             updatedCode = noteJSON2.map((node) => {
                 return node.editorId === editorId
                     ? { ...node, editorValue: newValue }
                     : { ...node };
             });
-            setTimeout(() => {
-                dispatch((setCurEditorValue(updatedCode)))
-            }, 2000)
-        };
+            dispatch(setCurEditorValue(updatedCode));
+        }, 3000);
 
         return (
             <>
@@ -117,7 +127,9 @@ const TextEditor = () => {
                         mode={element.language}
                         theme="monokai"
                         value={element.editorValue}
-                        onChange={(newValue) => handleCodeChange(newValue, element.editorId)}
+                        onChange={(newValue) =>
+                            returnedFunction(newValue, element.editorId)
+                        }
                     />
                 </div>
                 <p
@@ -215,12 +227,14 @@ const TextEditor = () => {
                     onKeyDown={(event) => {
                         if (isHotkey('mod+s', event)) {
                             event.preventDefault();
-                            axios.post('/updateNote', {
-                                id: selectedNote._id,
-                                content: JSON.stringify(noteJSON),
-                            }).then((res) => {
-                                console.log(res);
-                            });
+                            axios
+                                .post('/updateNote', {
+                                    id: selectedNote._id,
+                                    content: JSON.stringify(noteJSON),
+                                })
+                                .then((res) => {
+                                    console.log(res);
+                                });
                         }
                     }}
                     placeholder="Enter some text..."
