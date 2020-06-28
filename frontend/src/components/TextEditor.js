@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import AceEditor from 'react-ace';
 import 'brace/mode/javascript';
 import 'brace/mode/python';
+import 'brace/mode/html';
 import 'brace/theme/monokai';
 import isHotkey from 'is-hotkey';
 import _ from 'lodash';
@@ -13,7 +14,6 @@ import { Editable, withReact, Slate } from 'slate-react';
 import { Editor, createEditor, Transforms } from 'slate';
 
 // Material UI
-import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
@@ -26,19 +26,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
+import useStyles from '../CSS/textEditorStyles';
 
 import { setCurEditorValue } from '../actions/noteActions';
 import { useSelector, useDispatch } from 'react-redux';
-
-const useStyles = makeStyles((theme) => ({
-    menuButton: {
-        marginRight: theme.spacing(2),
-    },
-    formControl: {
-        margin: theme.spacing(1),
-        minWidth: 120,
-    },
-}));
+import { Typography } from '@material-ui/core';
 
 const TextEditor = () => {
     const classes = useStyles();
@@ -49,7 +41,10 @@ const TextEditor = () => {
 
     const [language, setLanguage] = useState('javascript');
     const [open, setOpen] = useState(false);
-    const [noteTitle, setNoteTitle] = useState('untitled');
+    const [noteTitle, setNoteTitle] = useState(selectedNote.title);
+    const [bold, setBold] = useState(false);
+    const [underline, setUnderline] = useState(false);
+    const [italic, setItalic] = useState(false);
 
     const editor = useMemo(() => withReact(createEditor()), []);
     const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
@@ -59,6 +54,9 @@ const TextEditor = () => {
         if (!_.isEmpty(selectedNote)) {
             dispatch(setCurEditorValue(JSON.parse(selectedNote.content)));
         }
+        setBold(false);
+        setUnderline(false);
+        setItalic(false);
     }, [selectedNote]);
 
     const handleChange = (event) => {
@@ -99,17 +97,6 @@ const TextEditor = () => {
             });
         };
 
-        const handleCodeChange = (newValue, editorId) => {
-            // updatedCode = noteJSON2.map((node) => {
-            //     return node.editorId === editorId
-            //         ? { ...node, editorValue: newValue }
-            //         : { ...node };
-            // });
-            // setTimeout(() => {
-            //     dispatch((setCurEditorValue(updatedCode)))
-            // }, 2000)
-        };
-
         var returnedFunction = debounce((newValue, editorId) => {
             updatedCode = noteJSON2.map((node) => {
                 return node.editorId === editorId
@@ -147,7 +134,7 @@ const TextEditor = () => {
     return (
         <div
             style={{
-                backgroundColor: 'white',
+                backgroundColor: '#fff',
                 minHeight: '50vh',
                 width: '50vw',
             }}
@@ -161,47 +148,55 @@ const TextEditor = () => {
                     <Toolbar>
                         <IconButton
                             edge="start"
-                            className={classes.menuButton}
-                            color="inherit"
-                            aria-label="menu"
+                            className={classes.markButtons}
                             onMouseDown={(event) => {
                                 event.preventDefault();
+                                setBold(!bold);
                                 toggleMark(editor, 'bold');
                             }}
                         >
-                            <FormatBoldIcon />
+                            <FormatBoldIcon
+                                className={
+                                    bold ? classes.marksSelected : classes.marks
+                                }
+                            />
                         </IconButton>
                         <IconButton
                             edge="start"
-                            className={classes.menuButton}
-                            color="inherit"
-                            aria-label="menu"
+                            className={classes.markButtons}
                             onMouseDown={(event) => {
                                 event.preventDefault();
+                                setUnderline(!underline);
                                 toggleMark(editor, 'underline');
                             }}
                         >
-                            <FormatUnderlineIcon />
+                            <FormatUnderlineIcon
+                                className={
+                                    underline
+                                        ? classes.marksSelected
+                                        : classes.marks
+                                }
+                            />
                         </IconButton>
                         <IconButton
                             edge="start"
-                            className={classes.menuButton}
-                            color="inherit"
-                            aria-label="menu"
-                        >
-                            <FormatItalicIcon />
-                        </IconButton>
-                        <Button
-                            variant="contained"
-                            onClick={(event) => {
+                            className={classes.markButtons}
+                            onMouseDown={(event) => {
                                 event.preventDefault();
-                                toggleBlock(editor, 'code', language);
+                                setItalic(!italic);
+                                toggleMark(editor, 'italic');
                             }}
                         >
-                            Add Editor
-                        </Button>
+                            <FormatItalicIcon
+                                className={
+                                    italic
+                                        ? classes.marksSelected
+                                        : classes.marks
+                                }
+                            />
+                        </IconButton>
                         <FormControl className={classes.formControl}>
-                            <InputLabel>Language</InputLabel>
+                            <InputLabel style={{}}>Language</InputLabel>
                             <Select
                                 value={language}
                                 onChange={handleChange}
@@ -209,6 +204,7 @@ const TextEditor = () => {
                                 onOpen={handleOpen}
                                 labelId="demo-controlled-open-select-label"
                                 id="demo-controlled-open-select"
+                                style={{ marginRight: '10px' }}
                             >
                                 <MenuItem value="javascript">
                                     Javascript
@@ -217,8 +213,41 @@ const TextEditor = () => {
                                 <MenuItem value="python">Python</MenuItem>
                             </Select>
                         </FormControl>
-                        <TextField id="standard-basic" label="Title" />
-                        <Button variant="contained">Update Title</Button>
+                        <Button
+                            variant="contained"
+                            onClick={(event) => {
+                                event.preventDefault();
+                                toggleBlock(editor, 'code', language);
+                            }}
+                            className={classes.addEditor}
+                            disableElevation
+                        >
+                            <Typography
+                                variant="button"
+                                className={classes.addEditorTxt}
+                            >
+                                Add Editor
+                            </Typography>
+                        </Button>
+                        <TextField
+                            id="standard-basic"
+                            label="Title"
+                            defaultValue={noteTitle}
+                            style={{ marginLeft: '20px', marginRight: '10px' }}
+                            onChange={handleTitleChange}
+                        />
+                        <Button
+                            variant="contained"
+                            className={classes.addEditor}
+                            disableElevation
+                        >
+                            <Typography
+                                variant="button"
+                                className={classes.addEditorTxt}
+                            >
+                                Update Title
+                            </Typography>
+                        </Button>
                     </Toolbar>
                 </AppBar>
                 <Editable
@@ -294,15 +323,5 @@ const Leaf = ({ attributes, children, leaf }) => {
 
     return <span {...attributes}>{children}</span>;
 };
-
-const initialValue = [
-    {
-        children: [
-            {
-                text: 'Starter Text',
-            },
-        ],
-    },
-];
 
 export default TextEditor;
