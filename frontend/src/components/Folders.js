@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+
+// Material-ui
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import FolderIcon from '@material-ui/icons/Folder';
+import IconButton from '@material-ui/core/IconButton';
 import Modal from '@material-ui/core/Modal';
 import TextField from '@material-ui/core/TextField';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Typography from '@material-ui/core/Typography';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import useStyles from '../CSS/folderStyles'
+
 import axios from 'axios';
-import { useSelector, useDispatch } from 'react-redux'
-import { notesInFolder } from '../actions/noteActions'
+import { useSelector, useDispatch } from 'react-redux';
+import { notesInFolder } from '../actions/noteActions';
 
 function rand() {
     return Math.round(Math.random() * 20) - 10;
@@ -26,24 +33,6 @@ function getModalStyle() {
     };
 }
 
-const useStyles = makeStyles((theme) => ({
-    addFolder: {
-        color: '#fff',
-        textAlign: 'center',
-        backgroundColor: 'red',
-    },
-    modal: {
-        position: 'absolute',
-        width: '20vw',
-        height: '20vh',
-        backgroundColor: theme.palette.background.paper,
-        padding: theme.spacing(2, 4, 3),
-    },
-    form: {
-        display: 'block',
-    },
-}));
-
 const Folders = () => {
     const classes = useStyles();
 
@@ -53,7 +42,7 @@ const Folders = () => {
     const [folders, setFolders] = useState([]);
     const [folderName, setfolderName] = useState('');
 
-    const notes = useSelector(state => state.notes)
+    const notes = useSelector((state) => state.notes);
     const dispatch = useDispatch();
 
     const handleOpen = () => {
@@ -66,10 +55,9 @@ const Folders = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        axios
-            .post('/addFolder', {
-                folder: folderName,
-            })
+        axios.post('/addFolder', {
+            folder: folderName,
+        });
     };
 
     const handleChange = (event) => {
@@ -77,9 +65,16 @@ const Folders = () => {
     };
 
     const getNotes = (event) => {
-        event.persist()
-        dispatch((notesInFolder(event.currentTarget.dataset.value)))
-    }
+        event.persist();
+        const value = event.currentTarget.dataset.value;
+        const newFolders = folders.map((folder) =>
+            folder.folder === value
+                ? { ...folder, selected: true }
+                : { ...folder, selected: false }
+        );
+        setFolders(newFolders)
+        dispatch(notesInFolder(value));
+    };
 
     useEffect(() => {
         axios
@@ -88,9 +83,12 @@ const Folders = () => {
                 return res.data;
             })
             .then((res) => {
-                setFolders(res.folders);
+                const folderObject = res.folders.map((folder) => {
+                    return { folder: folder, selected: false };
+                });
+                setFolders(folderObject);
             });
-    });
+    }, []);
 
     const modalBody = (
         <div style={modalStyle} className={classes.modal}>
@@ -110,21 +108,57 @@ const Folders = () => {
 
     return (
         <div>
-            <List>
-                <ListItem button onClick={handleOpen}>
-                    <ListItemText
-                        primary="Add Folder"
-                        className={classes.addFolder}
-                    />
-                </ListItem>
-                {folders.map((folderName) => {
+            <List style={{ marginTop: '0px' }}>
+                {folders.map((folderObj) => {
+                    console.log(folderObj.selected);
+
                     return (
-                        <ListItem button onClick={getNotes} data-value={folderName}>
-                            <ListItemText primary={folderName} value={folderName}
-                            style={{ color: '#fff'}}/>
+                        <ListItem
+                            button
+                            onClick={getNotes}
+                            data-value={folderObj.folder}
+                            className={classes.folderButton}
+                        >
+                            <ListItemIcon>
+                                <FolderIcon style={{ color: '#0166FF' }} />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={
+                                    <Typography variant="h6">
+                                        {folderObj.folder}
+                                    </Typography>
+                                }
+                                value={folderObj.folder}
+                                className={
+                                    folderObj.selected
+                                        ? classes.folderBtnTextSelected
+                                        : classes.folderBtnTextReg
+                                }
+                            />
                         </ListItem>
                     );
                 })}
+                <IconButton onClick={handleOpen}>
+                    <AddCircleIcon className={classes.addFolder} />
+                </IconButton>
+                <Typography
+                    display="inline"
+                    variant="button"
+                    style={{ color: '#fff' }}
+                >
+                    Add Folder
+                </Typography>
+                <br />
+                <IconButton edge="end" aria-label="delete">
+                    <DeleteIcon className={classes.deleteFolder} />
+                </IconButton>
+                <Typography
+                    display="inline"
+                    variant="button"
+                    style={{ color: '#fff' }}
+                >
+                    Delete Folder
+                </Typography>
             </List>
             <Modal open={open} onClose={handleClose}>
                 {modalBody}
