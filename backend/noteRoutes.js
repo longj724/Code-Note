@@ -53,7 +53,7 @@ const noteApi = (server) => {
             });
             res.json({ success: 'success' });
         } catch (err) {
-            res.json({ error: err.message || err.toStrin() });
+            res.json({ error: err.message || err.toString() });
         }
     });
 

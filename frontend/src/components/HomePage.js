@@ -1,21 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Redirect } from 'react-router-dom';
-import Grid from '@material-ui/core/Grid';
-import { makeStyles } from '@material-ui/core/styles';
-import TextEditor from './TextEditor';
 
+import TextEditor from './TextEditor';
 import Folders from './Folders';
 import Notes from './Notes'
+
+import { makeStyles } from '@material-ui/core/styles';
+import Grid from '@material-ui/core/Grid';
 
 const useStyles = makeStyles({
     divs: {
         height: '100vh',
     },
     div1: {
-        backgroundColor: '#222751',
+        backgroundColor: '#000',
     },
     div2: {
-        backgroundColor: '#282e5e',
+        backgroundColor: '#fff',
+        borderRight: '1px solid #000'
     },
     div3: {
         backgroundColor: '#eee',
@@ -25,22 +27,6 @@ const useStyles = makeStyles({
 const HomePage = () => {
     const classes = useStyles();
     const [auth, setAuth] = useState(true);
-
-    useEffect(() => {
-        // axios.get('/auth/github')
-        //     .then((res) => {
-        //         return res.json();
-        //     })
-        //     .then((res) => {
-        //         console.log('res is', res);
-        //         if (res.loggedIn === 'true') {
-        //             setAuth(true);
-        //         }
-        //     });
-        // axios.get('/testing').then((res) => {
-        //     console.log(res);
-        // });
-    }, []);
 
     return (
         <div>
