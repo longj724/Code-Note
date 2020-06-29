@@ -29,6 +29,11 @@ const useStyles = makeStyles((theme) => ({
         color: '#0166FF',
         display: 'block',
         fontSize: 40,
+        backgroundColor: '#000',
+        '&:hover': {
+            backgroundColor: '#bdbdbd'
+        },
+        borderRadius: '10px'
     },
     modal: {
         position: 'absolute',

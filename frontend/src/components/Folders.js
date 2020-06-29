@@ -59,9 +59,9 @@ const Folders = () => {
             folder: folderName,
         });
         setFolders(() => {
-            folders.push({ folder: folderName, selected: false})
-            return folders
-        })
+            folders.push({ folder: folderName, selected: false });
+            return folders;
+        });
     };
 
     const handleChange = (event) => {
@@ -76,6 +76,7 @@ const Folders = () => {
                 ? { ...folder, selected: true }
                 : { ...folder, selected: false }
         );
+        console.log('The new fodlers are', newFolders);
         setFolders(newFolders);
         dispatch(notesInFolder(value));
     };
@@ -88,8 +89,11 @@ const Folders = () => {
                 'Are you sure you want to delete the folder: ',
                 notes[0].folder
             );
-            dispatch(deleteNotesInFolder())
             axios.post('/deleteFolder', { folder: notes[0].folder });
+            setFolders(() =>
+                folders.filter((val) => !(val.folder === notes[0].folder))
+            );
+            dispatch(deleteNotesInFolder());
         }
     };
 
@@ -105,7 +109,7 @@ const Folders = () => {
                 });
                 setFolders(folderObject);
             });
-    }, [notes]);
+    }, []);
 
     const modalBody = (
         <div style={modalStyle} className={classes.modal}>
@@ -164,10 +168,8 @@ const Folders = () => {
                     Add Folder
                 </Typography>
                 <br />
-                <IconButton edge="end" aria-label="delete" onClick={deleteFolder}>
-                    <DeleteIcon
-                        className={classes.deleteFolder}
-                    />
+                <IconButton edge="end" onClick={deleteFolder}>
+                    <DeleteIcon className={classes.deleteFolder} />
                 </IconButton>
                 <Typography
                     display="inline"
