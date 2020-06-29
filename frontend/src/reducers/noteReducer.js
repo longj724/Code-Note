@@ -3,6 +3,7 @@ import {
     SELECTED_NOTE,
     CUR_EDITOR_JSON,
     SELECT_NOTE,
+    DELETE_FOLDER
 } from '../actions/types';
 
 const initialState = {
@@ -37,6 +38,11 @@ export default (state = initialState, action) => {
                 curEditorJSON: action.payload,
             };
         case SELECT_NOTE:
+            return {
+                ...state,
+                notes: action.payload
+            }
+        case DELETE_FOLDER:
             return {
                 ...state,
                 notes: action.payload

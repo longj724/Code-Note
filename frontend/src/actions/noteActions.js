@@ -1,4 +1,10 @@
-import { CUR_FOLDER_NOTES, SELECTED_NOTE, CUR_EDITOR_JSON, SELECT_NOTE } from './types';
+import {
+    CUR_FOLDER_NOTES,
+    SELECTED_NOTE,
+    CUR_EDITOR_JSON,
+    SELECT_NOTE,
+    DELETE_FOLDER,
+} from './types';
 import axios from 'axios';
 
 export const notesInFolder = (folder) => (dispatch) => {
@@ -11,8 +17,8 @@ export const notesInFolder = (folder) => (dispatch) => {
         })
         .then((notes) => {
             const updatedNotes = notes.map((n) => {
-                return {...n, selected: false}
-            })
+                return { ...n, selected: false };
+            });
             dispatch({
                 type: CUR_FOLDER_NOTES,
                 payload: updatedNotes,
@@ -30,5 +36,9 @@ export const setCurEditorValue = (value) => (dispatch) => {
 };
 
 export const selectNote = (updatedNotes) => (dispatch) => {
-    dispatch({ type: SELECT_NOTE, payload: updatedNotes})
-}
+    dispatch({ type: SELECT_NOTE, payload: updatedNotes });
+};
+
+export const deleteNotesInFolder = () => (dispatch) => {
+    dispatch({ type: DELETE_FOLDER, payload: []});
+};

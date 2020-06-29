@@ -35,6 +35,15 @@ const noteApi = (server) => {
         }
     });
 
+    router.post('/deleteFolder', async (req, res) => {
+        try {
+            await Note.deleteMany({ folder: req.body.folder })
+            res.json({success: 'success'})
+        } catch (err) {
+            res.json({ error: err.message || err.toString() });
+        }
+    });
+
     router.post('/addNote', async (req, res) => {
         try {
             const note = await Note.createNote({

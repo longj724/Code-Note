@@ -12,11 +12,11 @@ import TextField from '@material-ui/core/TextField';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Typography from '@material-ui/core/Typography';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import useStyles from '../CSS/folderStyles'
+import useStyles from '../CSS/folderStyles';
 
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
-import { notesInFolder } from '../actions/noteActions';
+import { notesInFolder, deleteNotesInFolder } from '../actions/noteActions';
 
 function rand() {
     return Math.round(Math.random() * 20) - 10;
@@ -42,7 +42,7 @@ const Folders = () => {
     const [folders, setFolders] = useState([]);
     const [folderName, setfolderName] = useState('');
 
-    const notes = useSelector((state) => state.notes);
+    const notes = useSelector((state) => state.notes.notes);
     const dispatch = useDispatch();
 
     const handleOpen = () => {
@@ -58,6 +58,10 @@ const Folders = () => {
         axios.post('/addFolder', {
             folder: folderName,
         });
+        setFolders(() => {
+            folders.push({ folder: folderName, selected: false})
+            return folders
+        })
     };
 
     const handleChange = (event) => {
@@ -72,8 +76,21 @@ const Folders = () => {
                 ? { ...folder, selected: true }
                 : { ...folder, selected: false }
         );
-        setFolders(newFolders)
+        setFolders(newFolders);
         dispatch(notesInFolder(value));
+    };
+
+    const deleteFolder = () => {
+        if (notes.length === 0) {
+            window.alert('No folder selected');
+        } else {
+            window.alert(
+                'Are you sure you want to delete the folder: ',
+                notes[0].folder
+            );
+            dispatch(deleteNotesInFolder())
+            axios.post('/deleteFolder', { folder: notes[0].folder });
+        }
     };
 
     useEffect(() => {
@@ -88,7 +105,7 @@ const Folders = () => {
                 });
                 setFolders(folderObject);
             });
-    }, []);
+    }, [notes]);
 
     const modalBody = (
         <div style={modalStyle} className={classes.modal}>
@@ -110,8 +127,6 @@ const Folders = () => {
         <div>
             <List style={{ marginTop: '0px' }}>
                 {folders.map((folderObj) => {
-                    console.log(folderObj.selected);
-
                     return (
                         <ListItem
                             button
@@ -149,13 +164,15 @@ const Folders = () => {
                     Add Folder
                 </Typography>
                 <br />
-                <IconButton edge="end" aria-label="delete">
-                    <DeleteIcon className={classes.deleteFolder} />
+                <IconButton edge="end" aria-label="delete" onClick={deleteFolder}>
+                    <DeleteIcon
+                        className={classes.deleteFolder}
+                    />
                 </IconButton>
                 <Typography
                     display="inline"
                     variant="button"
-                    style={{ color: '#fff' }}
+                    style={{ color: '#fff', marginLeft: '19px' }}
                 >
                     Delete Folder
                 </Typography>
