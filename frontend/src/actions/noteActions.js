@@ -4,6 +4,8 @@ import {
     CUR_EDITOR_JSON,
     SELECT_NOTE,
     DELETE_FOLDER,
+    DELETE_NOTE,
+    UPDATE_NOTES_IN_FOLDER,
 } from './types';
 import axios from 'axios';
 
@@ -40,5 +42,13 @@ export const selectNote = (updatedNotes) => (dispatch) => {
 };
 
 export const deleteNotesInFolder = () => (dispatch) => {
-    dispatch({ type: DELETE_FOLDER, payload: []});
+    dispatch({ type: DELETE_FOLDER, payload: [] });
+};
+
+export const deleteSelectedNote = () => (dispatch) => {
+    dispatch({ type: DELETE_NOTE, payload: {} });
+};
+
+export const updateNotesInFolder = (updatedNotes) => (dispatch) => {
+    dispatch({ type: UPDATE_NOTES_IN_FOLDER, payload: updatedNotes });
 };
