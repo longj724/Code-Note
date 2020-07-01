@@ -61,13 +61,22 @@ const noteApi = (server) => {
         try {
             await Note.updateOne(
                 { _id: req.body.id },
-                { content: req.body.content }
+                { content: req.body.content, title: req.body.title }
             );
             res.json({ success: 'success' });
         } catch (err) {
             res.json({ error: err.message || err.toString() });
         }
     });
+
+    router.post('/deleteNote', async (req, res) => {
+        try {
+            await Note.deleteOne({ _id: req.body.id })
+            res.json({ success: 'success' });
+        } catch (err) {
+            res.json({ error: err.message || err.toString() });
+        }
+    })
 
     server.use('/', router);
 };
