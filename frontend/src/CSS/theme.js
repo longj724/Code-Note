@@ -16,6 +16,9 @@ const theme = createMuiTheme({
         h6: {
             fontWeight: 'bold',
         },
+        body2: {
+            fontSize: '12px'
+        }
     },
 });
 
