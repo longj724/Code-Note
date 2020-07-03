@@ -30,9 +30,9 @@ import TextField from '@material-ui/core/TextField';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import useStyles from '../CSS/textEditorStyles';
 
-import { setCurEditorValue, selectNote } from '../actions/noteActions';
+import { setCurEditorValue } from '../actions/noteActions';
 import { useSelector, useDispatch } from 'react-redux';
-import { Typography, Icon, Hidden } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 
 const TextEditor = () => {
     const classes = useStyles();
@@ -48,7 +48,7 @@ const TextEditor = () => {
     const [noteTitle, setNoteTitle] = useState(selectedNote.title);
     const [updateTitleCheck, setUpdateTitleCheck] = useState(false);
     const [saveCheck, setSaveCheck] = useState(false)
-    const [ tempValue, setTempValue ] = useState('')
+    const [ tempValue, setTempValue ] = useState(noNoteText)
 
     const editor = useMemo(() => withReact(createEditor()), []);
     const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
@@ -174,8 +174,14 @@ const TextEditor = () => {
         >
             <Slate
                 editor={editor}
-                value={noteJSON}
-                onChange={(newValue) => dispatch(setCurEditorValue(newValue))}
+                value={_.isEmpty(selectedNote) ? tempValue: noteJSON}
+                onChange={(newValue) => {
+                    if (_.isEmpty(selectedNote)) {
+                        setTempValue(newValue)
+                    } else {
+                        dispatch(setCurEditorValue(newValue))
+                    }
+                }}
             >
                 <AppBar position="static">
                     <Toolbar>
@@ -285,6 +291,9 @@ const TextEditor = () => {
                             className={classes.markButtons}
                             style={{ marginLeft: '1vw' }}
                             onClick={() => {
+                                if (_.isEmpty(selectedNote)) {
+                                    return
+                                }
                                 setSaveCheck(true)
                                 axios
                                     .post('/updateNote', {
