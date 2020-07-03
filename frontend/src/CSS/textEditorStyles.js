@@ -46,6 +46,13 @@ const useStyles = makeStyles((theme) => ({
     },
     updatingTitle: {
         color: '#000',
+    },
+    notSaving: {
+        color: '#000',
+        display: 'none'
+    },
+    saving: {
+        color: '#000'
     }
 }));
 

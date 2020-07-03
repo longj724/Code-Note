@@ -21,30 +21,34 @@ import IconButton from '@material-ui/core/IconButton';
 import FormatBoldIcon from '@material-ui/icons/FormatBold';
 import FormatItalicIcon from '@material-ui/icons/FormatItalic';
 import FormatUnderlineIcon from '@material-ui/icons/FormatUnderlined';
+import SaveIcon from '@material-ui/icons/Save';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import useStyles from '../CSS/textEditorStyles';
 
-import { setCurEditorValue } from '../actions/noteActions';
+import { setCurEditorValue, selectNote } from '../actions/noteActions';
 import { useSelector, useDispatch } from 'react-redux';
-import { Typography } from '@material-ui/core';
+import { Typography, Icon, Hidden } from '@material-ui/core';
 
 const TextEditor = () => {
     const classes = useStyles();
     const dispatch = useDispatch();
     const selectedNote = useSelector((state) => state.notes.selectedNote);
-
     const noteJSON = useSelector((state) => state.notes.curEditorJSON);
 
     const [language, setLanguage] = useState('javascript');
     const [open, setOpen] = useState(false);
-    const [noteTitle, setNoteTitle] = useState(selectedNote.title);
     const [bold, setBold] = useState(false);
     const [underline, setUnderline] = useState(false);
     const [italic, setItalic] = useState(false);
+    const [noteTitle, setNoteTitle] = useState(selectedNote.title);
+    const [updateTitleCheck, setUpdateTitleCheck] = useState(false);
+    const [saveCheck, setSaveCheck] = useState(false)
+    const [ tempValue, setTempValue ] = useState('')
 
     const editor = useMemo(() => withReact(createEditor()), []);
     const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
@@ -57,6 +61,7 @@ const TextEditor = () => {
         setBold(false);
         setUnderline(false);
         setItalic(false);
+        setNoteTitle(selectedNote.title);
     }, [selectedNote]);
 
     const handleChange = (event) => {
@@ -73,9 +78,33 @@ const TextEditor = () => {
 
     const handleTitleChange = (event) => {
         setNoteTitle(event.target.value);
+        debounce(() => {
+            axios
+                .post('/updateNote', {
+                    id: selectedNote._id,
+                    content: selectedNote.content,
+                    title: noteTitle,
+                })
+                .then((res) => {
+                    console.log(res);
+                });
+        }, 1000);
+        setUpdateTitleCheck(false);
     };
 
-    const updateTitle = (event) => {};
+    const updateTitle = debounce((value) => {
+        console.log('note title is:', value)
+        axios
+            .post('/updateNote', {
+                id: selectedNote._id,
+                content: selectedNote.content,
+                title: value,
+            })
+            .then((res) => {
+                console.log(res);
+            });
+        setUpdateTitleCheck(false)
+    }, 3000);
 
     const Element = (props) => {
         const { attributes, children, element } = props;
@@ -83,7 +112,11 @@ const TextEditor = () => {
             case 'code':
                 return <AceElement {...props} />;
             default:
-                return <p {...attributes}>{children}</p>;
+                return (
+                    <p style={{ fontSize: '16px' }} {...attributes}>
+                        {children}
+                    </p>
+                );
         }
     };
 
@@ -93,11 +126,11 @@ const TextEditor = () => {
 
         const onClick = () => {
             Editor.insertNode(editor, {
-                children: [{ text: 'Work' }],
+                children: [{ text: '' }],
             });
         };
 
-        var returnedFunction = debounce((newValue, editorId) => {
+        var handleCodeChange = debounce((newValue, editorId) => {
             updatedCode = noteJSON2.map((node) => {
                 return node.editorId === editorId
                     ? { ...node, editorValue: newValue }
@@ -115,7 +148,7 @@ const TextEditor = () => {
                         theme="monokai"
                         value={element.editorValue}
                         onChange={(newValue) =>
-                            returnedFunction(newValue, element.editorId)
+                            handleCodeChange(newValue, element.editorId)
                         }
                     />
                 </div>
@@ -195,7 +228,7 @@ const TextEditor = () => {
                                 }
                             />
                         </IconButton>
-                        <FormControl className={classes.formControl}>
+                        <FormControl className={classes.editorLangForm}>
                             <InputLabel style={{}}>Language</InputLabel>
                             <Select
                                 value={language}
@@ -223,7 +256,7 @@ const TextEditor = () => {
                             disableElevation
                         >
                             <Typography
-                                variant="button"
+                                variant="body2"
                                 className={classes.addEditorTxt}
                             >
                                 Add Editor
@@ -233,21 +266,50 @@ const TextEditor = () => {
                             id="standard-basic"
                             label="Title"
                             defaultValue={noteTitle}
-                            style={{ marginLeft: '20px', marginRight: '10px' }}
-                            onChange={handleTitleChange}
+                            style={{ marginRight: '10px' }}
+                            onChange={(e) => {
+                                setUpdateTitleCheck(true)
+                                updateTitle(e.target.value)
+                            }}
+                            className={classes.editorLangForm}
                         />
-                        <Button
-                            variant="contained"
-                            className={classes.addEditor}
-                            disableElevation
+                        <CircularProgress
+                            className={
+                                updateTitleCheck
+                                    ? classes.updatingTitle
+                                    : classes.notUpdatingTitle
+                            }
+                        size={20} />
+                        <IconButton
+                            edge="start"
+                            className={classes.markButtons}
+                            style={{ marginLeft: '1vw' }}
+                            onClick={() => {
+                                setSaveCheck(true)
+                                axios
+                                    .post('/updateNote', {
+                                        id: selectedNote._id,
+                                        content: JSON.stringify(noteJSON),
+                                        title: selectedNote.title,
+                                    })
+                                    .then((res) => {
+                                        console.log(res);
+                                    });
+                                setTimeout(() => {
+                                    setSaveCheck(false)
+                                }, 1000)
+                            }}
                         >
-                            <Typography
-                                variant="button"
-                                className={classes.addEditorTxt}
-                            >
-                                Update Title
-                            </Typography>
-                        </Button>
+                            <SaveIcon className={classes.marks} />
+                        </IconButton>
+                        <CircularProgress
+                            className={
+                                saveCheck
+                                    ? classes.saving
+                                    : classes.notSaving
+                            }
+                        size={20} />
+                        <p>Does this show up</p>
                     </Toolbar>
                 </AppBar>
                 <Editable
@@ -256,6 +318,7 @@ const TextEditor = () => {
                     onKeyDown={(event) => {
                         if (isHotkey('mod+s', event)) {
                             event.preventDefault();
+                            setSaveCheck(true)
                             axios
                                 .post('/updateNote', {
                                     id: selectedNote._id,
@@ -264,9 +327,11 @@ const TextEditor = () => {
                                 .then((res) => {
                                     console.log(res);
                                 });
+                            setTimeout(() => {
+                                setSaveCheck(false)
+                            }, 1000)
                         }
                     }}
-                    placeholder="Enter some text..."
                 />
             </Slate>
         </div>
@@ -323,5 +388,15 @@ const Leaf = ({ attributes, children, leaf }) => {
 
     return <span {...attributes}>{children}</span>;
 };
+
+const noNoteText = [
+    {
+        children: [
+            {
+                text: 'No note selected - Changes will not be saved',
+            },
+        ],
+    },
+];
 
 export default TextEditor;
