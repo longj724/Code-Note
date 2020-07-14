@@ -22,6 +22,7 @@ const useStyles = makeStyles({
         marginBottom: '3vh',
         fontSize: '40px',
         fontWeight: '400',
+        textAlign: 'center'
     },
     subText: {
         marginBottom: '1vh',
