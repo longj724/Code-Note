@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { Redirect } from 'react-router-dom';
 import AceEditor from 'react-ace';
 import 'brace/mode/javascript';
 import 'brace/mode/python';
@@ -21,6 +22,7 @@ import IconButton from '@material-ui/core/IconButton';
 import FormatBoldIcon from '@material-ui/icons/FormatBold';
 import FormatItalicIcon from '@material-ui/icons/FormatItalic';
 import FormatUnderlineIcon from '@material-ui/icons/FormatUnderlined';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import SaveIcon from '@material-ui/icons/Save';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -47,8 +49,9 @@ const TextEditor = () => {
     const [italic, setItalic] = useState(false);
     const [noteTitle, setNoteTitle] = useState(selectedNote.title);
     const [updateTitleCheck, setUpdateTitleCheck] = useState(false);
-    const [saveCheck, setSaveCheck] = useState(false)
-    const [ tempValue, setTempValue ] = useState(noNoteText)
+    const [saveCheck, setSaveCheck] = useState(false);
+    const [tempValue, setTempValue] = useState(noNoteText);
+    const [redirectToHome, setRedirectToHome] = useState(false);
 
     const editor = useMemo(() => withReact(createEditor()), []);
     const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
@@ -93,7 +96,7 @@ const TextEditor = () => {
     };
 
     const updateTitle = debounce((value) => {
-        console.log('note title is:', value)
+        console.log('note title is:', value);
         axios
             .post('/updateNote', {
                 id: selectedNote._id,
@@ -103,8 +106,19 @@ const TextEditor = () => {
             .then((res) => {
                 console.log(res);
             });
-        setUpdateTitleCheck(false)
+        setUpdateTitleCheck(false);
     }, 3000);
+
+    const logout = () => {
+        axios
+            .get('/logout')
+            .then((res) => res.data)
+            .then((data) => {
+                if (data.logout) {
+                    setRedirectToHome(true);
+                }
+            });
+    };
 
     const Element = (props) => {
         const { attributes, children, element } = props;
@@ -172,177 +186,188 @@ const TextEditor = () => {
                 width: '50vw',
             }}
         >
-            <Slate
-                editor={editor}
-                value={_.isEmpty(selectedNote) ? tempValue: noteJSON}
-                onChange={(newValue) => {
-                    if (_.isEmpty(selectedNote)) {
-                        setTempValue(newValue)
-                    } else {
-                        dispatch(setCurEditorValue(newValue))
-                    }
-                }}
-            >
-                <AppBar position="static">
-                    <Toolbar>
-                        <IconButton
-                            edge="start"
-                            className={classes.markButtons}
-                            onMouseDown={(event) => {
-                                event.preventDefault();
-                                setBold(!bold);
-                                toggleMark(editor, 'bold');
-                            }}
-                        >
-                            <FormatBoldIcon
-                                className={
-                                    bold ? classes.marksSelected : classes.marks
-                                }
-                            />
-                        </IconButton>
-                        <IconButton
-                            edge="start"
-                            className={classes.markButtons}
-                            onMouseDown={(event) => {
-                                event.preventDefault();
-                                setUnderline(!underline);
-                                toggleMark(editor, 'underline');
-                            }}
-                        >
-                            <FormatUnderlineIcon
-                                className={
-                                    underline
-                                        ? classes.marksSelected
-                                        : classes.marks
-                                }
-                            />
-                        </IconButton>
-                        <IconButton
-                            edge="start"
-                            className={classes.markButtons}
-                            onMouseDown={(event) => {
-                                event.preventDefault();
-                                setItalic(!italic);
-                                toggleMark(editor, 'italic');
-                            }}
-                        >
-                            <FormatItalicIcon
-                                className={
-                                    italic
-                                        ? classes.marksSelected
-                                        : classes.marks
-                                }
-                            />
-                        </IconButton>
-                        <FormControl className={classes.editorLangForm}>
-                            <InputLabel style={{}}>Language</InputLabel>
-                            <Select
-                                value={language}
-                                onChange={handleChange}
-                                onClose={handleClose}
-                                onOpen={handleOpen}
-                                labelId="demo-controlled-open-select-label"
-                                id="demo-controlled-open-select"
+            {' '}
+            {redirectToHome ? (
+                <Redirect to="/" />
+            ) : (
+                <Slate
+                    editor={editor}
+                    value={_.isEmpty(selectedNote) ? tempValue : noteJSON}
+                    onChange={(newValue) => {
+                        if (_.isEmpty(selectedNote)) {
+                            setTempValue(newValue);
+                        } else {
+                            dispatch(setCurEditorValue(newValue));
+                        }
+                    }}
+                >
+                    <AppBar position="static">
+                        <Toolbar>
+                            <IconButton
+                                edge="start"
+                                className={classes.markButtons}
+                                onMouseDown={(event) => {
+                                    event.preventDefault();
+                                    setBold(!bold);
+                                    toggleMark(editor, 'bold');
+                                }}
+                            >
+                                <FormatBoldIcon
+                                    className={
+                                        bold
+                                            ? classes.marksSelected
+                                            : classes.marks
+                                    }
+                                />
+                            </IconButton>
+                            <IconButton
+                                edge="start"
+                                className={classes.markButtons}
+                                onMouseDown={(event) => {
+                                    event.preventDefault();
+                                    setUnderline(!underline);
+                                    toggleMark(editor, 'underline');
+                                }}
+                            >
+                                <FormatUnderlineIcon
+                                    className={
+                                        underline
+                                            ? classes.marksSelected
+                                            : classes.marks
+                                    }
+                                />
+                            </IconButton>
+                            <IconButton
+                                edge="start"
+                                className={classes.markButtons}
+                                onMouseDown={(event) => {
+                                    event.preventDefault();
+                                    setItalic(!italic);
+                                    toggleMark(editor, 'italic');
+                                }}
+                            >
+                                <FormatItalicIcon
+                                    className={
+                                        italic
+                                            ? classes.marksSelected
+                                            : classes.marks
+                                    }
+                                />
+                            </IconButton>
+                            <FormControl className={classes.editorLangForm}>
+                                <InputLabel style={{}}>Language</InputLabel>
+                                <Select
+                                    value={language}
+                                    onChange={handleChange}
+                                    onClose={handleClose}
+                                    onOpen={handleOpen}
+                                    labelId="demo-controlled-open-select-label"
+                                    id="demo-controlled-open-select"
+                                    style={{ marginRight: '10px' }}
+                                >
+                                    <MenuItem value="javascript">
+                                        Javascript
+                                    </MenuItem>
+                                    <MenuItem value="html">HTML</MenuItem>
+                                    <MenuItem value="python">Python</MenuItem>
+                                </Select>
+                            </FormControl>
+                            <Button
+                                variant="contained"
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    toggleBlock(editor, 'code', language);
+                                }}
+                                className={classes.addEditor}
+                                disableElevation
+                            >
+                                <Typography
+                                    variant="body2"
+                                    className={classes.addEditorTxt}
+                                >
+                                    Add Editor
+                                </Typography>
+                            </Button>
+                            <TextField
+                                id="standard-basic"
+                                label="Title"
+                                defaultValue={noteTitle}
                                 style={{ marginRight: '10px' }}
-                            >
-                                <MenuItem value="javascript">
-                                    Javascript
-                                </MenuItem>
-                                <MenuItem value="html">HTML</MenuItem>
-                                <MenuItem value="python">Python</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <Button
-                            variant="contained"
-                            onClick={(event) => {
-                                event.preventDefault();
-                                toggleBlock(editor, 'code', language);
-                            }}
-                            className={classes.addEditor}
-                            disableElevation
-                        >
-                            <Typography
-                                variant="body2"
-                                className={classes.addEditorTxt}
-                            >
-                                Add Editor
-                            </Typography>
-                        </Button>
-                        <TextField
-                            id="standard-basic"
-                            label="Title"
-                            defaultValue={noteTitle}
-                            style={{ marginRight: '10px' }}
-                            onChange={(e) => {
-                                setUpdateTitleCheck(true)
-                                updateTitle(e.target.value)
-                            }}
-                            className={classes.editorLangForm}
-                        />
-                        <CircularProgress
-                            className={
-                                updateTitleCheck
-                                    ? classes.updatingTitle
-                                    : classes.notUpdatingTitle
-                            }
-                        size={20} />
-                        <IconButton
-                            edge="start"
-                            className={classes.markButtons}
-                            style={{ marginLeft: '1vw' }}
-                            onClick={() => {
-                                if (_.isEmpty(selectedNote)) {
-                                    return
+                                onChange={(e) => {
+                                    setUpdateTitleCheck(true);
+                                    updateTitle(e.target.value);
+                                }}
+                                className={classes.editorLangForm}
+                            />
+                            <CircularProgress
+                                className={
+                                    updateTitleCheck
+                                        ? classes.updatingTitle
+                                        : classes.notUpdatingTitle
                                 }
-                                setSaveCheck(true)
+                                size={20}
+                            />
+                            <IconButton
+                                edge="start"
+                                className={classes.markButtons}
+                                style={{ marginLeft: '1vw' }}
+                                onClick={() => {
+                                    if (_.isEmpty(selectedNote)) {
+                                        return;
+                                    }
+                                    setSaveCheck(true);
+                                    axios
+                                        .post('/updateNote', {
+                                            id: selectedNote._id,
+                                            content: JSON.stringify(noteJSON),
+                                            title: selectedNote.title,
+                                        })
+                                        .then((res) => {
+                                            console.log(res);
+                                        });
+                                    setTimeout(() => {
+                                        setSaveCheck(false);
+                                    }, 1000);
+                                }}
+                            >
+                                <SaveIcon className={classes.marks} />
+                            </IconButton>
+                            <CircularProgress
+                                className={
+                                    saveCheck
+                                        ? classes.saving
+                                        : classes.notSaving
+                                }
+                                size={20}
+                            />
+                            <IconButton onClick={() => logout()} className={classes.markButtons}>
+                                <ExitToAppIcon className={classes.marks}/>
+                            </IconButton>
+                        </Toolbar>
+                    </AppBar>
+                    <Editable
+                        renderElement={renderElement}
+                        renderLeaf={renderLeaf}
+                        onKeyDown={(event) => {
+                            if (isHotkey('mod+s', event)) {
+                                event.preventDefault();
+                                setSaveCheck(true);
                                 axios
                                     .post('/updateNote', {
                                         id: selectedNote._id,
                                         content: JSON.stringify(noteJSON),
-                                        title: selectedNote.title,
                                     })
                                     .then((res) => {
                                         console.log(res);
                                     });
                                 setTimeout(() => {
-                                    setSaveCheck(false)
-                                }, 1000)
-                            }}
-                        >
-                            <SaveIcon className={classes.marks} />
-                        </IconButton>
-                        <CircularProgress
-                            className={
-                                saveCheck
-                                    ? classes.saving
-                                    : classes.notSaving
+                                    setSaveCheck(false);
+                                }, 1000);
                             }
-                        size={20} />
-                        <p>Does this show up</p>
-                    </Toolbar>
-                </AppBar>
-                <Editable
-                    renderElement={renderElement}
-                    renderLeaf={renderLeaf}
-                    onKeyDown={(event) => {
-                        if (isHotkey('mod+s', event)) {
-                            event.preventDefault();
-                            setSaveCheck(true)
-                            axios
-                                .post('/updateNote', {
-                                    id: selectedNote._id,
-                                    content: JSON.stringify(noteJSON),
-                                })
-                                .then((res) => {
-                                    console.log(res);
-                                });
-                            setTimeout(() => {
-                                setSaveCheck(false)
-                            }, 1000)
-                        }
-                    }}
-                />
-            </Slate>
+                        }}
+                    />
+                </Slate>
+            )}
         </div>
     );
 };

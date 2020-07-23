@@ -6,7 +6,8 @@ const router = express.Router();
 const noteApi = (server) => {
     router.get('/folders', async (req, res) => {
         try {
-            const folders = await Note.distinct('folder');
+            console.log(req.user)
+            const folders = await Note.distinct('folder', { userId: req.user._id });
             res.json({ folders });
         } catch (err) {
             res.json({ error: err.message || err.toString() });
@@ -28,7 +29,7 @@ const noteApi = (server) => {
 
     router.post('/notesInFolder', async (req, res) => {
         try {
-            const notes = await Note.find({ folder: req.body.folder });
+            const notes = await Note.find({ folder: req.body.folder }, null, { userId: req.user._id });
             res.json(notes);
         } catch (err) {
             res.json({ error: err.message || err.toString() });
@@ -37,7 +38,7 @@ const noteApi = (server) => {
 
     router.post('/deleteFolder', async (req, res) => {
         try {
-            await Note.deleteMany({ folder: req.body.folder })
+            await Note.deleteMany({ folder: req.body.folder }, { userId: req.user._id })
             res.json({success: 'success'})
         } catch (err) {
             res.json({ error: err.message || err.toString() });
