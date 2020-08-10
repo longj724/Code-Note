@@ -5,10 +5,12 @@ import {
     notesInFolder,
     selectNote,
     deleteSelectedNote,
-    updateNotesInFolder
+    updateNotesInFolder,
 } from '../actions/noteActions';
 import axios from 'axios';
-import _ from 'lodash'
+import _ from 'lodash';
+import classNames from 'classnames';
+import { debounce } from '../utils/helpers';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -20,7 +22,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Typography from '@material-ui/core/Typography';
-import useStyles from '../CSS/noteStyles'
+import useStyles from '../CSS/noteStyles';
+import '../CSS/noteStyles.css';
 
 const Notes = () => {
     const classes = useStyles();
@@ -55,22 +58,46 @@ const Notes = () => {
 
     const deleteNote = () => {
         if (_.isEmpty(selectedNote)) {
-            window.alert('No note selected')
+            window.alert('No note selected');
         } else {
-            window.alert(
-                'Are you sure you want to delete the selected note?'
-            );
-            axios.post('/deleteNote', {
-                id: selectedNote._id
-            }).then((res) => {
-                console.log(res)
-            })
+            window.alert('Are you sure you want to delete the selected note?');
+            axios
+                .post('/deleteNote', {
+                    id: selectedNote._id,
+                })
+                .then((res) => {
+                    console.log(res);
+                });
 
-            const updatedNotes = notes.filter((note) => !(note._id === selectedNote._id))
-            dispatch(updateNotesInFolder(updatedNotes))
-            dispatch(deleteSelectedNote())
+            const updatedNotes = notes.filter(
+                (note) => !(note._id === selectedNote._id)
+            );
+            dispatch(updateNotesInFolder(updatedNotes));
+            dispatch(deleteSelectedNote());
         }
-    }
+    };
+
+    const searchNotes = debounce((value) => {
+        if (value !== '') {
+            const filteredNotes = notes.filter((note) =>
+                note.content.includes(value)
+            );
+            console.log('The filtered notes are', filteredNotes);
+            const updatedNotes = notes.map((note) => {
+                if (filteredNotes.some((el) => el._id === note._id)) {
+                    return { ...note, filtered: true };
+                }
+                return { ...note, filtered: false };
+            });
+            console.log('The updated notes are', updatedNotes);
+            dispatch(selectNote(updatedNotes));
+        } else {
+            const updatedNotes = notes.map((note) => {
+                return { ...note, filtered: false };
+            });
+            dispatch(selectNote(updatedNotes))
+        }
+    }, 1000);
 
     return (
         <div>
@@ -89,10 +116,16 @@ const Notes = () => {
                                 </InputAdornment>
                             ),
                         }}
+                        onChange={(e) => searchNotes(e.target.value)}
                     />
                 </form>
                 {notes.length > 0 ? (
                     notes.map((note) => {
+                        let listItemClass = classNames({
+                            noteBtnTextSelected: note.selected,
+                            noteBtnTextReg: !note.selected,
+                            noteBtnTextHighlighted: note.filtered,
+                        });
                         return (
                             <ListItem
                                 button
@@ -103,11 +136,7 @@ const Notes = () => {
                             >
                                 <ListItemText
                                     primary={note.title}
-                                    className={
-                                        note.selected
-                                            ? classes.noteBtnTextSelected
-                                            : classes.noteBtnTextReg
-                                    }
+                                    className={listItemClass}
                                 />
                             </ListItem>
                         );
@@ -128,10 +157,12 @@ const Notes = () => {
                     Add Note
                 </Typography>
                 <br />
-                <IconButton edge="end" className={classes.deleteFolderBtn} onClick={deleteNote}>
-                    <DeleteIcon
-                        className={classes.deleteFolder}
-                    />
+                <IconButton
+                    edge="end"
+                    className={classes.deleteFolderBtn}
+                    onClick={deleteNote}
+                >
+                    <DeleteIcon className={classes.deleteFolder} />
                 </IconButton>
                 <Typography
                     display="inline"

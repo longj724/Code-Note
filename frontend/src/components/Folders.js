@@ -36,7 +36,6 @@ function getModalStyle() {
 const Folders = () => {
     const classes = useStyles();
 
-    const [rendered, setRendered] = useState(false);
     const [open, setOpen] = useState(false);
     const [modalStyle] = useState(getModalStyle);
     const [folders, setFolders] = useState([]);
@@ -76,7 +75,6 @@ const Folders = () => {
                 ? { ...folder, selected: true }
                 : { ...folder, selected: false }
         );
-        console.log('The new fodlers are', newFolders);
         setFolders(newFolders);
         dispatch(notesInFolder(value));
     };
@@ -86,8 +84,7 @@ const Folders = () => {
             window.alert('No folder selected');
         } else {
             window.alert(
-                'Are you sure you want to delete the folder: ',
-                notes[0].folder
+                'Are you sure you want to delete the selected folder?'
             );
             axios.post('/deleteFolder', { folder: notes[0].folder });
             setFolders(() =>
@@ -137,6 +134,7 @@ const Folders = () => {
                             onClick={getNotes}
                             data-value={folderObj.folder}
                             className={classes.folderButton}
+                            key={folderObj.folder}
                         >
                             <ListItemIcon>
                                 <FolderIcon style={{ color: '#0166FF' }} />

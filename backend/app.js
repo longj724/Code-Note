@@ -50,4 +50,12 @@ server.use(bodyParser.json());
 auth({ server, ROOT_URL });
 noteApi(server);
 
+server.get('/checkAuth', async (req, res) => {
+    if (req.user) {
+        res.send({ 'auth': true })
+    } else {
+        res.send({ 'auth': false })
+    }
+})
+
 server.listen(port, () => console.log(`Listening on port ${port}`));

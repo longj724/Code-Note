@@ -1,0 +1,16 @@
+.noteBtnTextReg {
+    color: #000;
+}
+
+.noteBtnTextReg:hover {
+    border-bottom: 1px solid #000;
+}
+
+.noteBtnTextSelected {
+    color: #000;
+    border-bottom: 1px solid #000
+}
+
+.noteBtnTextHighlighted {
+    background-color: yellow;
+}

@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
     },
     saving: {
         color: '#000'
-    }
+    },
 }));
 
 export default useStyles;

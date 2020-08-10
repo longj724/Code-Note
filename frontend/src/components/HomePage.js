@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom';
 
 import TextEditor from './TextEditor';
 import Folders from './Folders';
-import Notes from './Notes'
+import Notes from './Notes';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
@@ -17,7 +17,7 @@ const useStyles = makeStyles({
     },
     div2: {
         backgroundColor: '#fff',
-        borderRight: '1px solid #000'
+        borderRight: '1px solid #000',
     },
     div3: {
         backgroundColor: '#eee',
@@ -26,25 +26,20 @@ const useStyles = makeStyles({
 
 const HomePage = () => {
     const classes = useStyles();
-    const [auth, setAuth] = useState(true);
 
     return (
         <div>
-            {auth ? (
-                <Grid container className={classes.divs}>
-                    <Grid item xs={3} className={classes.div1}>
-                        <Folders />
-                    </Grid>
-                    <Grid item xs={3} className={classes.div2}>
-                        <Notes />
-                    </Grid>
-                    <Grid item xs={6} className={classes.div3}>
-                        <TextEditor />
-                    </Grid>
+            <Grid container className={classes.divs}>
+                <Grid item xs={3} className={classes.div1}>
+                    <Folders />
                 </Grid>
-            ) : (
-                <Redirect to="/" />
-            )}
+                <Grid item xs={3} className={classes.div2}>
+                    <Notes />
+                </Grid>
+                <Grid item xs={6} className={classes.div3}>
+                    <TextEditor />
+                </Grid>
+            </Grid>
         </div>
     );
 };
