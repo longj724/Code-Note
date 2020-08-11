@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Redirect } from 'react-router-dom';
+import React from 'react';
 
 import TextEditor from './TextEditor';
 import Folders from './Folders';

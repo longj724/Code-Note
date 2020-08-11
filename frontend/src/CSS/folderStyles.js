@@ -31,19 +31,26 @@ const useStyles = makeStyles((theme) => ({
         fontSize: 40,
         backgroundColor: '#000',
         '&:hover': {
-            backgroundColor: '#bdbdbd'
+            backgroundColor: '#bdbdbd',
         },
-        borderRadius: '10px'
+        borderRadius: '10px',
     },
-    modal: {
-        position: 'absolute',
-        width: '20vw',
-        height: '20vh',
-        backgroundColor: theme.palette.background.paper,
-        padding: theme.spacing(2, 4, 3),
+    form: {},
+    addFolderModal: {
+        width: '30vw',
+        height: '30vh',
+        backgroundColor: '#fff',
+        marginLeft: '35vw',
+        marginTop: '35vh',
+        textAlign: 'center',
     },
-    form: {
+    modalInput: {
+        marginTop: '20px',
+        marginBottom: '30px'
+    },
+    addFolderSubmit: {
         display: 'block',
+        margin: 'auto',
     },
 }));
 

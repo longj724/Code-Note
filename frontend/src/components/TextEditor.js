@@ -4,6 +4,7 @@ import AceEditor from 'react-ace';
 import 'brace/mode/javascript';
 import 'brace/mode/python';
 import 'brace/mode/html';
+import 'brace/mode/mysql'
 import 'brace/theme/monokai';
 import isHotkey from 'is-hotkey';
 import _ from 'lodash';
@@ -32,7 +33,7 @@ import TextField from '@material-ui/core/TextField';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import useStyles from '../CSS/textEditorStyles';
 
-import { setCurEditorValue } from '../actions/noteActions';
+import { setCurEditorValue, updateNotesInFolder } from '../actions/noteActions';
 import { useSelector, useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
 
@@ -96,7 +97,6 @@ const TextEditor = () => {
     };
 
     const updateTitle = debounce((value) => {
-        console.log('note title is:', value);
         axios
             .post('/updateNote', {
                 id: selectedNote._id,
@@ -151,13 +151,15 @@ const TextEditor = () => {
                     : { ...node };
             });
             dispatch(setCurEditorValue(updatedCode));
-        }, 3000);
+        }, 1500);
 
         return (
             <>
                 <div contentEditable={false} style={{ marginLeft: '10px' }}>
                     <AceEditor
                         height="250px"
+                        width="600px"
+                        fontSize='14px'
                         mode={element.language}
                         theme="monokai"
                         value={element.editorValue}
@@ -270,6 +272,7 @@ const TextEditor = () => {
                                     </MenuItem>
                                     <MenuItem value="html">HTML</MenuItem>
                                     <MenuItem value="python">Python</MenuItem>
+                                    <MenuItem value="mysql">SQL</MenuItem>
                                 </Select>
                             </FormControl>
                             <Button

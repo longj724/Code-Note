@@ -7,6 +7,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import FolderIcon from '@material-ui/icons/Folder';
 import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
 import Modal from '@material-ui/core/Modal';
 import TextField from '@material-ui/core/TextField';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -101,6 +102,11 @@ const Folders = () => {
                 return res.data;
             })
             .then((res) => {
+                if (!res.user) {
+                    window.alert(
+                        'Practice Environment, You are not logged in.'
+                    );
+                }
                 const folderObject = res.folders.map((folder) => {
                     return { folder: folder, selected: false };
                 });
@@ -109,17 +115,23 @@ const Folders = () => {
     }, []);
 
     const modalBody = (
-        <div style={modalStyle} className={classes.modal}>
-            <form onSubmit={handleSubmit}>
+        <div className={classes.addFolderModal}>
+            <form onSubmit={handleSubmit} className={classes.form}>
                 <TextField
                     id="outlined-basic"
                     label="Folder Name"
                     variant="outlined"
                     onChange={handleChange}
+                    className={classes.modalInput}
                 />
-                <button type="submit" className={classes.form}>
+                <Button
+                    type="submit"
+                    variant="contained"
+                    className={classes.addFolderSubmit}
+                    disableElevation
+                >
                     Submit
-                </button>
+                </Button>
             </form>
         </div>
     );

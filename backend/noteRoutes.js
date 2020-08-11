@@ -5,10 +5,12 @@ const router = express.Router();
 
 const noteApi = (server) => {
     router.get('/folders', async (req, res) => {
+        if (!req.user) {
+            res.send({ folders: [], user: false })
+        }
         try {
-            console.log(req.user)
             const folders = await Note.distinct('folder', { userId: req.user._id });
-            res.json({ folders });
+            res.json({ folders, user: true });
         } catch (err) {
             res.json({ error: err.message || err.toString() });
         }

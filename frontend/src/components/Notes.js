@@ -82,14 +82,12 @@ const Notes = () => {
             const filteredNotes = notes.filter((note) =>
                 note.content.includes(value)
             );
-            console.log('The filtered notes are', filteredNotes);
             const updatedNotes = notes.map((note) => {
                 if (filteredNotes.some((el) => el._id === note._id)) {
                     return { ...note, filtered: true };
                 }
                 return { ...note, filtered: false };
             });
-            console.log('The updated notes are', updatedNotes);
             dispatch(selectNote(updatedNotes));
         } else {
             const updatedNotes = notes.map((note) => {

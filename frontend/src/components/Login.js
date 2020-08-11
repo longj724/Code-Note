@@ -22,10 +22,16 @@ const useStyles = makeStyles({
         marginBottom: '3vh',
         fontSize: '40px',
         fontWeight: '400',
-        textAlign: 'center'
+        textAlign: 'center',
     },
     subText: {
         marginBottom: '1vh',
+    },
+    video: {
+        marginTop: '10vh',
+        marginLeft: '5vw',
+        width: '40vw',
+        height: '80vh'
     },
     loginButton: {},
 });
@@ -63,7 +69,15 @@ const Login = () => {
                         </Button>
                     </div>
                 </Grid>
-                <Grid item xs={6} className={classes.div2}></Grid>
+                <Grid item xs={6} className={classes.div2}>
+                    <iframe
+                        title="vimeo-player"
+                        src="https://player.vimeo.com/video/446649813"
+                        frameborder="0"
+                        allowfullscreen
+                        className={classes.video}
+                    ></iframe>
+                </Grid>
             </Grid>
         </CssBaseline>
     );
