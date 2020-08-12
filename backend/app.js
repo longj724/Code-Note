@@ -6,6 +6,7 @@ const mongoSessionStore = require('connect-mongo');
 const bodyParser = require('body-parser');
 const auth = require('./github');
 const noteApi = require('./noteRoutes');
+const path = require('path')
 
 require('dotenv').config();
 
@@ -47,6 +48,17 @@ server.use(cors({ credentials: true }));
 
 server.use(session(sess));
 server.use(bodyParser.json());
+
+// Serve static assets if in production
+if (process.env.NODE_ENV === 'production') {
+    // Set static folder
+    app.use(express.static('../frontend/build'))
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
+    })
+}
+
 auth({ server, ROOT_URL });
 noteApi(server);
 
